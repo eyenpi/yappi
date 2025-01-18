@@ -1,9 +1,9 @@
-from src.agents.spotify_agent import spotify_agent
-from src.agents.user_experience_agent import ux_agent
+from api.agents.spotify_agent import spotify_agent
+from api.agents.user_experience_agent import ux_agent
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
 from autogen_ext.models.openai import OpenAIChatCompletionClient
-from src.utils.logger import get_logger
+from api.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

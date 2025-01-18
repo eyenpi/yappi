@@ -1,9 +1,9 @@
 import requests
 import json
-from src.config.settings import settings
-from src.utils.auth import get_spotify_token
-from src.models.chat_models import SearchSpotifyArgs
-from src.utils.logger import get_logger
+from api.config.settings import settings
+from api.utils.auth import get_spotify_token
+from api.models.chat_models import SearchSpotifyArgs
+from api.utils.logger import get_logger
 
 logger = get_logger(__name__)  # Initialize logger
 

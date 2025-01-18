@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException
-from src.models.chat_models import ChatRequest
-from src.services.chat_service import ChatService
+from api.models.chat_models import ChatRequest
+from api.services.chat_service import ChatService
 
 router = APIRouter()
+
 
 @router.post("/chat/{service}/ask")
 async def chat_with_service(service: str, request: ChatRequest):

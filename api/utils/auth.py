@@ -1,5 +1,6 @@
 import requests
-from src.config.settings import settings
+from api.config.settings import settings
+
 
 def get_spotify_token():
     """Authenticate with Spotify API and return an access token."""
