@@ -14,4 +14,4 @@ async def chat_with_service(service: str, request: ChatRequest):
         response = await ChatService.handle_spotify_chat(request.task)
     else:
         raise HTTPException(status_code=400, detail="Unsupported service.")
-    return {"response": response}
+    return {"role": "assistant", "content": response}
