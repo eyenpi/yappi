@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 class ChatService:
     @staticmethod
-    async def handle_spotify_chat(task: str):
+    async def handle_spotify_chat(message: str):
         """
         Handles a chat request using the Spotify agent.
         """
@@ -23,7 +23,7 @@ class ChatService:
             termination_condition=termination,
         )
         try:
-            response = await team.run(task=task)
+            response = await team.run(task=message)
             logger.info(f"Chat response: {response}")
             if response:
                 return response.messages[-1].content.replace("TERMINATE", "").strip()
