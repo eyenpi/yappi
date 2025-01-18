@@ -24,6 +24,7 @@ class ChatService:
         )
         try:
             response = await team.run(task=message)
+            await team.reset()
             logger.info(f"Chat response: {response}")
             if response:
                 return response.messages[-1].content.replace("TERMINATE", "").strip()
