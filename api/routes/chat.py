@@ -1,18 +1,24 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Security
 from api.models.chat_models import ChatRequest
 from api.services.chat_service import ChatService
-from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import httpx
+import logging
 from api.config.settings import Settings
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 # Load Supabase URL & Key from Environment Variables
 SUPABASE_URL = Settings.NEXT_PUBLIC_SUPABASE_URL
 SUPABASE_KEY = Settings.NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_AUTH_URL = f"{SUPABASE_URL}/auth/v1/user"
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("Supabase URL or API Key is not set in environment variables.")
+
+SUPABASE_AUTH_URL = f"{SUPABASE_URL}/auth/v1/user"
 
 security = HTTPBearer()  # Bearer token security
 
@@ -24,29 +30,52 @@ async def verify_supabase_token(
     Verifies the Supabase JWT token by making a request to Supabase Auth API.
     """
     token = credentials.credentials
-    headers = {"Authorization": f"Bearer {token}", "apikey": SUPABASE_KEY}
+    if not token:
+        logger.error("Missing Authorization token")
+        raise HTTPException(status_code=401, detail="Missing Authorization token")
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(SUPABASE_AUTH_URL, headers=headers)
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "apikey": str(SUPABASE_KEY),  # Ensure it's a string
+    }
 
-    if response.status_code != 200:
-        raise HTTPException(status_code=401, detail="Invalid Supabase token")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(SUPABASE_AUTH_URL, headers=headers)
 
-    user_data = response.json()
-    return user_data  # Return user info if token is valid
+        if response.status_code != 200:
+            logger.error(
+                f"Supabase token verification failed: {response.status_code} - {response.text}"
+            )
+            raise HTTPException(status_code=401, detail="Invalid Supabase token")
+
+        return response.json()  # Return user info if token is valid
+
+    except httpx.RequestError as e:
+        logger.error(f"Error verifying Supabase token: {e}")
+        raise HTTPException(
+            status_code=503, detail="Authentication service unavailable."
+        )
 
 
 @router.post("/chat/{service}/ask")
 async def chat_with_service(
     service: str,
     request: ChatRequest,
-    response=Depends(verify_supabase_token),
+    user_data=Depends(verify_supabase_token),
 ):
     """
     Handles chat requests for a specified service (e.g., Spotify).
     """
-    if service.lower() == "spotify":
-        response = await ChatService.handle_spotify_chat(request.message)
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported service.")
-    return {"response": response}
+    try:
+        if service.lower() == "spotify":
+            response = await ChatService.handle_spotify_chat(request.message)
+        else:
+            logger.warning(f"Unsupported service: {service}")
+            raise HTTPException(status_code=400, detail="Unsupported service.")
+
+        return {"response": response, "user": user_data}
+
+    except Exception as e:
+        logger.error(f"Error handling chat request: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
