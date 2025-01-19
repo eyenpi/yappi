@@ -31,4 +31,3 @@ class ChatService:
                 return response.messages[-1].content.replace("TERMINATE", "").strip()
         except Exception as e:
             logger.error(f"Error processing chat request: {e}")
-            raise HTTPException(status_code=500, detail="Internal Server Error")
