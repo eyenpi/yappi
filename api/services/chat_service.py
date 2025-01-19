@@ -5,6 +5,7 @@ from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermi
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from api.utils.logger import get_logger
 
+
 logger = get_logger(__name__)
 
 
@@ -30,3 +31,4 @@ class ChatService:
                 return response.messages[-1].content.replace("TERMINATE", "").strip()
         except Exception as e:
             logger.error(f"Error processing chat request: {e}")
+            raise HTTPException(status_code=500, detail="Internal Server Error")
