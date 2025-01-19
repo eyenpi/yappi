@@ -74,7 +74,7 @@ async def chat_with_service(
             logger.warning(f"Unsupported service: {service}")
             raise HTTPException(status_code=400, detail="Unsupported service.")
 
-        return {"response": response, "user": user_data}
+        return {"response": response}
 
     except Exception as e:
         logger.error(f"Error handling chat request: {e}")
