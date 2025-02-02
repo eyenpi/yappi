@@ -1,4 +1,5 @@
 from llama_index.agent.openai import OpenAIAgent
+from llama_index.llms.openai import OpenAI
 from typing import Dict
 from api.tools.spotify_tools import create_spotify_tools
 from api.core.langfuse_integration import instrumentor
@@ -11,8 +12,10 @@ class AgentManager:
 
     def _initialize_predefined_agents(self) -> None:
         """Initialize predefined agents"""
+        llm = OpenAI(model="gpt-4o")
         spotify_agent = OpenAIAgent.from_tools(
             create_spotify_tools(),
+            llm=llm,
             verbose=True,
             system_prompt="You are a Spotify assistant. Help users find music using Spotify's API.",
         )
