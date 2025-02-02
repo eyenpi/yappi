@@ -31,13 +31,16 @@ async def chat(
     try:
         if service == "spotify":
             response_text = await agent_manager.process_message(
-                "spotify", request.message
+                "spotify",
+                request.message,
+                user_data=user_data,  # Pass user_id from token
             )
             return {"response": response_text}  # Simple response with just content
 
         raise HTTPException(status_code=400, detail="Unsupported service")
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

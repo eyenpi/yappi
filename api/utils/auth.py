@@ -1,8 +1,9 @@
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Security, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import httpx
 from api.config.settings import settings
 import requests
+from api.db.supabase_client import supabase
 
 security = HTTPBearer()
 
@@ -21,28 +22,20 @@ def get_spotify_token() -> str:
     return response.json().get("access_token", "")
 
 
-async def verify_supabase_token(
-    credentials: HTTPAuthorizationCredentials = Security(security),
-) -> dict:
-    """Verify Supabase JWT token"""
-    if not credentials.credentials:
-        raise HTTPException(status_code=401, detail="Missing Authorization token")
+async def verify_supabase_token(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No authorization token provided")
 
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{settings.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user",
-                headers={
-                    "Authorization": f"Bearer {credentials.credentials}",
-                    "apikey": str(settings.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-                },
-            )
+        # Get token from Bearer header
+        token = authorization.split(" ")[1]
 
-        if response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        # Verify the token
+        user = supabase.auth.get_user(token)
 
-        return response.json()
-    except httpx.RequestError:
+        # Return both user data and token for database operations
+        return {"id": user.user.id, "access_token": token}
+    except Exception as e:
         raise HTTPException(
-            status_code=503, detail="Authentication service unavailable"
+            status_code=401, detail="Invalid authentication credentials"
         )
