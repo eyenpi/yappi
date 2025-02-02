@@ -1,24 +1,23 @@
 from fastapi import FastAPI
-from api.routes import chat
 from fastapi.middleware.cors import CORSMiddleware
+from api.routes import api
 
-
-app = FastAPI(title="Chat API", version="1.0")
+app = FastAPI(title="API Agent Platform", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins; restrict to specific domains if needed
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-app.include_router(chat.router)
+app.include_router(api.router, prefix="/v1")
 
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the AI Chat API!"}
+    return {"message": "Welcome to the API Agent Platform!"}
 
 
 if __name__ == "__main__":
