@@ -1,6 +1,7 @@
 from llama_index.agent.openai import OpenAIAgent
 from typing import Dict
 from api.tools.spotify_tools import create_spotify_tools
+from api.core.langfuse_integration import instrumentor
 
 
 class AgentManager:
@@ -22,7 +23,10 @@ class AgentManager:
         agent = self._agents.get(api_id)
         if not agent:
             raise ValueError(f"No agent found for API {api_id}")
-        return str(agent.chat(message))
+
+        response = str(agent.chat(message))
+        instrumentor.flush()  # Flush events after each chat
+        return response
 
 
 agent_manager = AgentManager()
