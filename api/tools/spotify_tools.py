@@ -13,3 +13,7 @@ def create_spotify_tools() -> List[FunctionTool]:
     )
 
     return [search_tool]
+
+
+# Create tools once at module level
+spotify_tools = create_spotify_tools()

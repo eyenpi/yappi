@@ -1,6 +1,6 @@
 from llama_index.agent.openai import OpenAIAssistantAgent
 from typing import Dict, Optional
-from api.tools.spotify_tools import create_spotify_tools
+from api.tools.spotify_tools import spotify_tools  # Import pre-created tools
 from api.core.langfuse_integration import instrumentor
 from api.models.thread_models import UserThread
 from supabase import create_client
@@ -18,7 +18,7 @@ class AgentManager:
         spotify_agent = OpenAIAssistantAgent.from_new(
             name="Spotify Assistant",
             instructions="You are a Spotify assistant. Help users find music using Spotify's API.",
-            tools=create_spotify_tools(),
+            tools=spotify_tools,  # Use pre-created tools
             model="gpt-4o-mini",
             verbose=True,
         )
@@ -75,7 +75,7 @@ class AgentManager:
                 # Create agent with existing thread
                 new_agent = OpenAIAssistantAgent.from_existing(
                     assistant_id=thread_data.assistant_id,
-                    tools=create_spotify_tools(),
+                    tools=spotify_tools,  # Use pre-created tools
                     thread_id=thread_data.thread_id,
                     verbose=True,
                 )
@@ -83,7 +83,7 @@ class AgentManager:
                 # Create new agent and save thread
                 new_agent = OpenAIAssistantAgent.from_existing(
                     assistant_id=base_agent.assistant.id,
-                    tools=create_spotify_tools(),
+                    tools=spotify_tools,  # Use pre-created tools
                     verbose=True,
                 )
                 thread_data = UserThread(
@@ -111,12 +111,13 @@ class AgentManager:
             user_id=user_id,
             session_id=agent.thread_id,
         ) as trace:
-            agent.add_message(message)
-            run, _ = await agent.arun_assistant()
-            response = str(agent.latest_message.content)
+            # agent.add_message(message)
+            # run, _ = await agent.arun_assistant()
+            # response = str(agent.latest_message.content)
+            response = await agent.achat(message)
 
         instrumentor.flush()
-        return response
+        return str(response)
 
 
 agent_manager = AgentManager()
