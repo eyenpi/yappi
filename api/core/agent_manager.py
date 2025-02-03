@@ -1,10 +1,10 @@
 from llama_index.agent.openai import OpenAIAssistantAgent
+from llama_index.llms.openai import OpenAI
 from typing import Dict, Optional
 from api.tools.spotify_tools import spotify_tools  # Import pre-created tools
 from api.core.langfuse_integration import instrumentor
 from api.models.thread_models import UserThread
-from supabase import create_client
-from api.config.settings import settings
+from api.db.supabase_client import supabase
 
 
 class AgentManager:
@@ -26,10 +26,7 @@ class AgentManager:
 
     def _get_authenticated_client(self, access_token: str):
         """Create a new authenticated Supabase client"""
-        client = create_client(
-            settings.NEXT_PUBLIC_SUPABASE_URL,
-            settings.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        )
+        client = supabase
         # Set auth header directly instead of using set_session
         client.postgrest.auth(access_token)
         return client
@@ -83,6 +80,7 @@ class AgentManager:
                 # Create new agent and save thread
                 new_agent = OpenAIAssistantAgent.from_existing(
                     assistant_id=base_agent.assistant.id,
+                    model="gpt-4o-mini",
                     tools=spotify_tools,  # Use pre-created tools
                     verbose=True,
                 )
