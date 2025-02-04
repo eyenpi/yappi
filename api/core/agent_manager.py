@@ -1,7 +1,11 @@
 from llama_index.agent.openai import OpenAIAssistantAgent
-from llama_index.llms.openai import OpenAI
-from typing import Dict, Optional
-from api.tools.spotify_tools import spotify_tools  # Import pre-created tools
+from typing import Dict, Optional, List
+import yaml
+from pathlib import Path
+from api.tools.spotify_tools import spotify_tools
+
+# Import other tool sets as needed
+# from api.tools.other_tools import other_tools
 from api.core.langfuse_integration import instrumentor
 from api.models.thread_models import UserThread
 from api.db.supabase_client import supabase
@@ -11,18 +15,55 @@ class AgentManager:
     def __init__(self):
         self._base_agents: Dict[str, OpenAIAssistantAgent] = {}
         self._user_agents: Dict[str, Dict[str, OpenAIAssistantAgent]] = {}
+        self._api_tools: Dict[str, List] = {
+            "spotify": spotify_tools,
+            # Add other API tools mappings here
+            # "other_api": other_tools,
+        }
+        self._load_instructions()
         self._initialize_predefined_agents()
+
+    def _load_instructions(self) -> None:
+        """Load assistant instructions from YAML file"""
+        docs_path = (
+            Path(__file__).parent.parent / "docs" / "assistant_instructions.yaml"
+        )
+        with open(docs_path) as f:
+            self._api_instructions = yaml.safe_load(f)
+
+    def _create_agent(
+        self,
+        api_id: str,
+        assistant_id: Optional[str] = None,
+        thread_id: Optional[str] = None,
+    ) -> OpenAIAssistantAgent:
+        """Centralized agent creation method"""
+        tools = self._api_tools[api_id]
+        instructions = self._api_instructions.get(api_id, {}).get(
+            "instructions", self._api_instructions["default"]["instructions"]
+        )
+        instructions = instructions.format(api_name=api_id.title())
+
+        if thread_id and assistant_id:
+            return OpenAIAssistantAgent.from_existing(
+                assistant_id=assistant_id,
+                tools=tools,
+                thread_id=thread_id,
+                verbose=True,
+            )
+        else:
+            return OpenAIAssistantAgent.from_new(
+                name=f"{api_id.title()} Assistant",
+                instructions=instructions,
+                tools=tools,
+                model="gpt-4o",
+                verbose=True,
+            )
 
     def _initialize_predefined_agents(self) -> None:
         """Initialize predefined agents"""
-        spotify_agent = OpenAIAssistantAgent.from_new(
-            name="Spotify Assistant",
-            instructions="You are a Spotify assistant. Help users find music using Spotify's API.",
-            tools=spotify_tools,  # Use pre-created tools
-            model="gpt-4o-mini",
-            verbose=True,
-        )
-        self._base_agents["spotify"] = spotify_agent
+        for api_id in self._api_tools:
+            self._base_agents[api_id] = self._create_agent(api_id)
 
     def _get_authenticated_client(self, access_token: str):
         """Create a new authenticated Supabase client"""
@@ -69,21 +110,17 @@ class AgentManager:
             base_agent = self._base_agents[api_id]
 
             if thread_data:
-                # Create agent with existing thread
-                new_agent = OpenAIAssistantAgent.from_existing(
+                new_agent = self._create_agent(
+                    api_id,
                     assistant_id=thread_data.assistant_id,
-                    tools=spotify_tools,  # Use pre-created tools
                     thread_id=thread_data.thread_id,
-                    verbose=True,
                 )
             else:
-                # Create new agent and save thread
-                new_agent = OpenAIAssistantAgent.from_existing(
+                new_agent = self._create_agent(
+                    api_id,
                     assistant_id=base_agent.assistant.id,
-                    model="gpt-4o-mini",
-                    tools=spotify_tools,  # Use pre-created tools
-                    verbose=True,
                 )
+                print("Creating new user thread")
                 thread_data = UserThread(
                     user_id=user_id,
                     api_id=api_id,
@@ -109,8 +146,13 @@ class AgentManager:
             user_id=user_id,
             session_id=agent.thread_id,
         ) as trace:
+            # # Add user message to thread
             # agent.add_message(message)
-            # run, _ = await agent.arun_assistant()
+
+            # # Run the assistant and let it make multiple function calls
+            # run, messages = await agent.arun_assistant()
+
+            # # Get the final response after all function calls
             # response = str(agent.latest_message.content)
             response = await agent.achat(message)
 

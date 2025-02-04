@@ -1,0 +1,139 @@
+search_spotify:
+  method_doc: >
+    Get Spotify catalog and Spotify ID information about albums, artists, playlists, tracks, shows,
+    episodes or audiobooks that match a keyword string. Audiobooks are only available
+    USE THIS TO GET SPOTIFY ID FOR OTHER API CALLS.
+  params:
+    q: >
+      Your search query.
+      You can narrow down your search using field filters. The available filters are album,
+      artist, track, year, upc, tag:hipster, tag:new, isrc, and genre. Each field filter
+      only applies to certain result types.
+      The artist and year filters can be used while searching albums, artists and tracks.
+      You can filter on a single year or a range (e.g. 1955-1960).
+      The album filter can be used while searching albums and tracks.
+      The genre filter can be used while searching artists and tracks.
+      The isrc and track filters can be used while searching tracks.
+      The upc, tag:new and tag:hipster filters can only be used while searching albums.
+      The tag:new filter will return albums released in the past two weeks and tag:hipster
+      can be used to return only albums with the lowest 10% popularity.
+    search_type: >
+      A comma-separated list of item types to search across. Search results include hits from all the specified item types. For example: q=abacab&type=album,track returns both albums and tracks matching "abacab".
+      Allowed values: "album", "artist", "playlist", "track", "show", "episode", "audiobook"
+    limit: >
+      The maximum number of results to return in each item type. 
+      For example, if you want to limit the number of albums, artists, 
+      and tracks to 5 each, set limit=5. Default: 1. Minimum: 1. Maximum: 50.
+
+get_track:
+  method_doc: >
+    Get Spotify catalog information for a single track identified by its unique Spotify ID.
+    
+    The API response includes detailed track metadata such as album details, artists, track duration, popularity, explicit content flags, and external URLs. Content availability may vary depending on market and user account settings.
+  params:
+    id: >
+      The Spotify ID for the track.
+      This parameter is required.
+      Example: 11dFghVXANMlKmJXsNCbNl
+
+get_artists_top_tracks:
+  method_doc: >
+    Get Spotify catalog information about an artist's top tracks by country.
+
+    The API response includes detailed metadata for the artist's top tracks, such as album details, performing artists, track duration, popularity, explicit content flags, and external URLs. Content availability may vary depending on the market and user account settings.
+  params:
+    id: >
+      The Spotify ID of the artist.
+      This parameter is required.
+      Example: 0TnOYISbd1XYRBk9myaseg
+    limit: >
+      The maximum number of tracks to return.
+      Default: 10. Minimum: 1. Maximum: 50.
+      Example: limit=5
+
+
+get_artist:
+  method_doc: >
+    Get Spotify catalog information for a single artist identified by their unique Spotify ID.
+
+    The API response includes detailed metadata for the artist, such as external URLs, follower count, genres, images, popularity, and Spotify URI.
+  params:
+    id: >
+      The Spotify ID of the artist.
+      This parameter is required.
+      Example: 0TnOYISbd1XYRBk9myaseg
+
+get_artists_albums:
+  method_doc: >
+    Get Spotify catalog information about an artist's albums.
+
+    The API response includes detailed metadata for the artist's albums, such as album type, total tracks, release date, cover art, available markets, and associated artists. Pagination parameters can be used to navigate through large result sets.
+  params:
+    id: >
+      The Spotify ID of the artist.
+      This parameter is required.
+      Example: 0TnOYISbd1XYRBk9myaseg
+    include_groups: >
+      A comma-separated list of keywords to filter the response by album types.
+      Valid values: "album", "single", "appears_on", "compilation".
+      If not provided, all album types will be returned.
+      Example: include_groups=single,appears_on
+    limit: >
+      The maximum number of items to return.
+      Default: 20. Minimum: 1. Maximum: 50.
+      Example: limit=10
+
+get_album:
+  method_doc: >
+    Get Spotify catalog information for a single album.
+
+    The API response includes detailed metadata for the album, such as album type, total tracks, release date, cover art, available markets, external URLs, associated artists, track list, copyrights, and popularity.
+  params:
+    id: >
+      The Spotify ID of the album.
+      This parameter is required.
+      Example: 4aawyAB9vmqN3uQ7FjRGTy
+
+get_album_tracks:
+  method_doc: >
+    Get Spotify catalog information about an album’s tracks. Optional parameters can be used to limit the number of tracks returned.
+
+    The API response includes detailed metadata for each track, such as performing artists, track duration, explicit content flags, available markets, and external URLs. Pagination parameters can be used to navigate through large result sets.
+  params:
+    id: >
+      The Spotify ID of the album.
+      This parameter is required.
+      Example: 4aawyAB9vmqN3uQ7FjRGTy
+    limit: >
+      The maximum number of items to return.
+      Default: 20. Minimum: 1. Maximum: 50.
+      Example: limit=10
+
+get_new_releases:
+  method_doc: >
+    Get a list of new album releases featured in Spotify, as shown on the “Browse” tab of the Spotify player.
+
+    The API response includes a paged set of albums with details such as album name, release date, cover art, and external URLs. Pagination parameters can be used to navigate through large result sets.
+  params:
+    limit: >
+      The maximum number of items to return.
+      Default: 20. Minimum: 1. Maximum: 50.
+      Example: limit=10
+
+get_playlist:
+  method_doc: >
+    Get a playlist owned by a Spotify user.
+
+    The API response includes detailed metadata for the playlist, such as playlist name, description, owner, images, followers, tracks, and external URLs. Optional parameters can be used to filter fields and specify supported item types.
+  params:
+    playlist_id: >
+      The Spotify ID of the playlist.
+      This parameter is required.
+      Example: 3cEYpjA9oz9GiPac4AsH4n
+    fields: >
+      A comma-separated list of fields to return. If omitted, all fields are returned.
+      Use dot notation for non-reoccurring fields and parentheses for nested objects.
+      Example: fields=items(added_by.id,track(name,href,album(name,href)))
+    additional_types: >
+      A comma-separated list of item types supported by the client in addition to the default track type.
+      Valid types: "track", "episode".
