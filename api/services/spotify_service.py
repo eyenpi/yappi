@@ -6,6 +6,7 @@ from api.config.settings import settings
 from api.utils.auth import get_spotify_token
 from typing_extensions import Annotated
 from pydantic import Field
+from api.utils.response_formatter import trim_spotify_response
 
 # Load documentation from YAML
 docs_path = Path(__file__).parent.parent / "docs" / "spotify_docs.yaml"
@@ -28,6 +29,20 @@ def with_yaml_doc(method_name):
 
 class SpotifyService:
     @staticmethod
+    def _make_request(endpoint: str, params: dict = None) -> dict:
+        """Helper method to make requests to Spotify API"""
+        access_token = get_spotify_token()
+        url = f"{settings.SPOTIFY_API_BASE_URL}/{endpoint}"
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            return trim_spotify_response(response.json())
+        except requests.exceptions.RequestException:
+            return {"error": "Failed to fetch data from Spotify"}
+
+    @staticmethod
     @with_yaml_doc("search_spotify")
     def search_spotify(
         q: Annotated[
@@ -44,25 +59,14 @@ class SpotifyService:
         offset: int = 0,
     ) -> str:
         """Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks."""
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/search"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={
-                    "q": q,
-                    "type": search_type,
-                    "market": market,
-                    "limit": limit,
-                    "offset": offset,
-                },
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch results from Spotify"}
+        params = {
+            "q": q,
+            "type": search_type,
+            "market": market,
+            "limit": limit,
+            "offset": offset,
+        }
+        return SpotifyService._make_request("search", params)
 
     @staticmethod
     @with_yaml_doc("get_track")
@@ -72,19 +76,8 @@ class SpotifyService:
         ],
         market: str = "US",
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/tracks/{id}"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={"market": market},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch track from Spotify"}
+        params = {"market": market}
+        return SpotifyService._make_request(f"tracks/{id}", params)
 
     @staticmethod
     @with_yaml_doc("get_artists_top_tracks")
@@ -95,19 +88,8 @@ class SpotifyService:
         ],
         market: str = "US",
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/artists/{id}/top-tracks"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={"market": market},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch artist's top tracks from Spotify"}
+        params = {"market": market}
+        return SpotifyService._make_request(f"artists/{id}/top-tracks", params)
 
     @staticmethod
     @with_yaml_doc("get_artist")
@@ -116,18 +98,7 @@ class SpotifyService:
             str, Field(description=SPOTIFY_DOCS["get_artist"]["params"]["id"])
         ]
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/artists/{id}"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch artist from Spotify"}
+        return SpotifyService._make_request(f"artists/{id}")
 
     @staticmethod
     @with_yaml_doc("get_artists_albums")
@@ -150,23 +121,10 @@ class SpotifyService:
         market: str = "US",
         offset: int = 0,
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/artists/{id}/albums"
-
         params = {"limit": limit, "market": market, "offset": offset}
         if include_groups:
             params["include_groups"] = include_groups
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params=params,
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch artist's albums from Spotify"}
+        return SpotifyService._make_request(f"artists/{id}/albums", params)
 
     @staticmethod
     @with_yaml_doc("get_album")
@@ -176,19 +134,8 @@ class SpotifyService:
         ],
         market: str = "US",
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/albums/{id}"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={"market": market},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch album from Spotify"}
+        params = {"market": market}
+        return SpotifyService._make_request(f"albums/{id}", params)
 
     @staticmethod
     @with_yaml_doc("get_album_tracks")
@@ -202,19 +149,8 @@ class SpotifyService:
         market: str = "US",
         offset: int = 0,
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/albums/{id}/tracks"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={"limit": limit, "market": market, "offset": offset},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch album tracks from Spotify"}
+        params = {"limit": limit, "market": market, "offset": offset}
+        return SpotifyService._make_request(f"albums/{id}/tracks", params)
 
     @staticmethod
     @with_yaml_doc("get_new_releases")
@@ -224,19 +160,8 @@ class SpotifyService:
         ] = 5,
         offset: int = 0,
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/browse/new-releases"
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params={"limit": limit, "offset": offset},
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch new releases from Spotify"}
+        params = {"limit": limit, "offset": offset}
+        return SpotifyService._make_request("browse/new-releases", params)
 
     @staticmethod
     @with_yaml_doc("get_playlist")
@@ -256,23 +181,10 @@ class SpotifyService:
         ] = None,
         market: str = "US",
     ) -> str:
-        access_token = get_spotify_token()
-        url = f"{settings.SPOTIFY_API_BASE_URL}/playlists/{playlist_id}"
-
         params = {}
         if fields:
             params["fields"] = fields
         if additional_types:
             params["additional_types"] = additional_types
         params["market"] = market
-
-        try:
-            response = requests.get(
-                url,
-                headers={"Authorization": f"Bearer {access_token}"},
-                params=params,
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
-            return {"error": "Failed to fetch playlist from Spotify"}
+        return SpotifyService._make_request(f"playlists/{playlist_id}", params)

@@ -3,6 +3,7 @@ from typing import Dict, Optional, List
 import yaml
 from pathlib import Path
 from api.tools.spotify_tools import spotify_tools
+from api.tools.ticketmaster_tools import ticketmaster_tools  # Add this import
 
 # Import other tool sets as needed
 # from api.tools.other_tools import other_tools
@@ -17,6 +18,7 @@ class AgentManager:
         self._user_agents: Dict[str, Dict[str, OpenAIAssistantAgent]] = {}
         self._api_tools: Dict[str, List] = {
             "spotify": spotify_tools,
+            "ticketmaster": ticketmaster_tools,  # Add this line
             # Add other API tools mappings here
             # "other_api": other_tools,
         }

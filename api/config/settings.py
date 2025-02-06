@@ -13,6 +13,8 @@ class Settings:
     LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY")
     LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY")
     LANGFUSE_HOST = os.getenv("LANGFUSE_HOST")
+    TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY")
+    TICKETMASTER_API_BASE_URL = "https://app.ticketmaster.com/discovery/v2"
 
 
 settings = Settings()

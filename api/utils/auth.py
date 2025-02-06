@@ -1,6 +1,5 @@
 from fastapi import HTTPException, Security, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import httpx
+from fastapi.security import HTTPBearer
 from api.config.settings import settings
 import requests
 from api.db.supabase_client import supabase

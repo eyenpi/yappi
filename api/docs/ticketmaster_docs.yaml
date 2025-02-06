@@ -1,0 +1,78 @@
+search_ticketmaster_events:
+  method_doc: >
+    Search for events on Ticketmaster by location, keyword, date, and other filters.
+    This API allows users to find upcoming events and get details such as venue, date,
+    and ticket availability.
+  params:
+    keyword: >
+      Keyword to search for events, such as artist name, event title, or genre.
+    countryCode: >
+      The country code (ISO 3166) to filter events within a specific country.
+    city: >
+      The name of the city to filter events occurring in a specific location.
+    stateCode: >
+      The state or province code for filtering events in a particular region.
+    venueId: >
+      The unique identifier of a venue to find events taking place there.
+    classificationName: >
+      Filter events by category, such as "Music", "Sports", or "Theatre".
+    startDateTime: >
+      Start date for filtering events. Format: YYYY-MM-DDTHH:mm:ssZ.
+    endDateTime: >
+      End date for filtering events. Format: YYYY-MM-DDTHH:mm:ssZ.
+    includeTBA: >
+      Set to "yes" to include events with a date to be announced.
+      Allowed values: "yes", "no", "only".
+    includeTBD: >
+      Set to "yes" to include events with a date to be determined.
+      Allowed values: "yes", "no", "only".
+    includeTest: >
+      Set to "yes" to include test events. Allowed values: "yes", "no", "only".
+    sort: >
+      Sorting order of the search results. Example values: "name,asc", "date,desc".
+    page: >
+      Page number for paginated results. Default: 0.
+    size: >
+      Number of results per page. Default: 20, Maximum: 200.
+
+get_ticketmaster_event_details:
+  method_doc: >
+    Retrieve detailed information about a specific event on Ticketmaster
+    using its unique event ID.
+  params:
+    id: >
+      The unique identifier of the event. This is required to fetch event details.
+    locale: >
+      The locale in ISO code format. Multiple values can be provided (e.g., "en-us").
+    domain: >
+      Filter entities based on the domain they are available on.
+
+search_ticketmaster_venues:
+  method_doc: >
+    Search for venues listed on Ticketmaster by name, location, and other filters.
+  params:
+    keyword: >
+      Keyword to search for venues by name or location.
+    countryCode: >
+      The country code (ISO 3166) to filter venues within a specific country.
+    city: >
+      The city name to filter venues by location.
+    stateCode: >
+      The state or province code to filter venues in a particular region.
+    postalCode: >
+      The postal code or ZIP code to filter venues.
+    page: >
+      Page number for paginated results. Default: 0.
+    size: >
+      Number of results per page. Default: 20, Maximum: 200.
+
+get_ticketmaster_venue_details:
+  method_doc: >
+    Retrieve detailed information about a specific venue using its unique identifier.
+  params:
+    id: >
+      The unique identifier of the venue. Required to fetch venue details.
+    locale: >
+      The locale in ISO code format. Multiple values can be provided (e.g., "en-us").
+    domain: >
+      Filter entities based on the domain they are available on.

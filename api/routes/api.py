@@ -29,13 +29,13 @@ async def chat(
 ):
     """Handle chat requests for any service"""
     try:
-        if service == "spotify":
+        if service in ["spotify", "ticketmaster"]:
             response_text = await agent_manager.process_message(
-                "spotify",
+                service,
                 request.message,
-                user_data=user_data,  # Pass user_id from token
+                user_data=user_data,
             )
-            return {"response": response_text}  # Simple response with just content
+            return {"response": response_text}
 
         raise HTTPException(status_code=400, detail="Unsupported service")
 
