@@ -156,7 +156,7 @@ class AgentManager:
             # response = str(agent.latest_message.content)
             response = await agent.achat(message)
 
-        instrumentor.flush()
+        # instrumentor.flush()
         return str(response)
 
 
