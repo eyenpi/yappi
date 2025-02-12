@@ -22,19 +22,29 @@ def get_spotify_token() -> str:
 
 
 async def verify_supabase_token(authorization: str = Header(None)):
+    """Verify Supabase JWT token from Authorization header"""
     if not authorization:
         raise HTTPException(status_code=401, detail="No authorization token provided")
 
+    # Validate Bearer token format
+    if not authorization.startswith("Bearer ") or len(authorization.split()) != 2:
+        raise HTTPException(
+            status_code=401, detail="Invalid authorization header format"
+        )
+
     try:
         # Get token from Bearer header
-        token = authorization.split(" ")[1]
+        token = authorization.split()[1]
 
         # Verify the token
         user = supabase.auth.get_user(token)
 
-        # Return both user data and token for database operations
-        return {"id": user.user.id, "access_token": token}
+        # Only return user ID, not the token
+        return {"id": user.user.id}
+
+    except supabase.GoTrueError as e:
+        # Handle specific Supabase auth errors
+        raise HTTPException(status_code=401, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=401, detail="Invalid authentication credentials"
-        )
+        # Log unexpected errors but don't expose details
+        raise HTTPException(status_code=500, detail="Internal server error")
