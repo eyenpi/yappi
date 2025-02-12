@@ -5,7 +5,6 @@ from functools import wraps
 from api.config.settings import settings
 from typing_extensions import Annotated
 from pydantic import Field
-from api.utils.response_formatter import trim_ticketmaster_response
 
 # Load documentation from YAML
 docs_path = Path(__file__).parent.parent / "docs" / "ticketmaster_docs.yaml"
@@ -37,7 +36,7 @@ class TicketmasterService:
         try:
             response = requests.get(url, params=params)
             response.raise_for_status()
-            return trim_ticketmaster_response(response.json())
+            return response.json()
         except requests.exceptions.RequestException:
             return {"error": f"Failed to fetch data from Ticketmaster: {endpoint}"}
 

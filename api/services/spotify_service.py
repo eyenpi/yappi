@@ -6,7 +6,6 @@ from api.config.settings import settings
 from api.utils.auth import get_spotify_token
 from typing_extensions import Annotated
 from pydantic import Field
-from api.utils.response_formatter import trim_spotify_response
 
 # Load documentation from YAML
 docs_path = Path(__file__).parent.parent / "docs" / "spotify_docs.yaml"
@@ -38,7 +37,7 @@ class SpotifyService:
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
-            return trim_spotify_response(response.json())
+            return response.json()
         except requests.exceptions.RequestException:
             return {"error": "Failed to fetch data from Spotify"}
 
