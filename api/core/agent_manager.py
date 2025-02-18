@@ -3,24 +3,20 @@ from typing import Dict, Optional, List
 import yaml
 from pathlib import Path
 from api.tools.spotify_tools import spotify_tools
-from api.tools.ticketmaster_tools import ticketmaster_tools  # Add this import
+from api.tools.ticketmaster_tools import ticketmaster_tools
 
-# Import other tool sets as needed
-# from api.tools.other_tools import other_tools
 from api.core.langfuse_integration import instrumentor
-from api.models.thread_models import UserThread
-from api.db.supabase_client import supabase
 
 
 class AgentManager:
     def __init__(self):
         self._base_agents: Dict[str, OpenAIAssistantAgent] = {}
-        self._user_agents: Dict[str, Dict[str, OpenAIAssistantAgent]] = {}
+        self._session_agents: Dict[str, Dict[str, OpenAIAssistantAgent]] = (
+            {}
+        )  # session_id -> {api_id -> agent}
         self._api_tools: Dict[str, List] = {
             "spotify": spotify_tools,
-            "ticketmaster": ticketmaster_tools,  # Add this line
-            # Add other API tools mappings here
-            # "other_api": other_tools,
+            "ticketmaster": ticketmaster_tools,
         }
         self._load_instructions()
         self._initialize_predefined_agents()
@@ -37,23 +33,22 @@ class AgentManager:
         self,
         api_id: str,
         assistant_id: Optional[str] = None,
-        thread_id: Optional[str] = None,
     ) -> OpenAIAssistantAgent:
-        """Centralized agent creation method"""
+        """Create a new agent instance"""
         tools = self._api_tools[api_id]
         instructions = self._api_instructions.get(api_id, {}).get(
             "instructions", self._api_instructions["default"]["instructions"]
         )
         instructions = instructions.format(api_name=api_id.title())
 
-        if thread_id and assistant_id:
+        if assistant_id:
+            # Use existing assistant but create new thread
             return OpenAIAssistantAgent.from_existing(
                 assistant_id=assistant_id,
-                tools=tools,
-                thread_id=thread_id,
                 verbose=True,
             )
         else:
+            # Create completely new assistant
             return OpenAIAssistantAgent.from_new(
                 name=f"{api_id.title()} Assistant",
                 instructions=instructions,
@@ -67,89 +62,43 @@ class AgentManager:
         for api_id in self._api_tools:
             self._base_agents[api_id] = self._create_agent(api_id)
 
-    def _get_authenticated_client(self, access_token: str):
-        """Create a new authenticated Supabase client"""
-        client = supabase
-        # Set auth header directly instead of using set_session
-        client.postgrest.auth(access_token)
-        return client
-
-    async def _load_user_thread(
-        self, user_id: str, api_id: str, access_token: str
-    ) -> Optional[UserThread]:
-        """Load user thread from database"""
-        client = self._get_authenticated_client(access_token)
-        result = (
-            client.table("user_threads")
-            .select("*")
-            .eq("user_id", user_id)
-            .eq("api_id", api_id)
-            .execute()
-        )
-        if result.data:
-            return UserThread(**result.data[0])
-        return None
-
-    async def _save_user_thread(self, thread: UserThread, access_token: str) -> None:
-        """Save user thread to database"""
-        client = self._get_authenticated_client(access_token)
-        thread_dict = thread.dict()
-        # Convert UUID and datetime to strings for Supabase
-        thread_dict["id"] = str(thread_dict["id"])
-        thread_dict["created_at"] = thread_dict["created_at"].isoformat()
-        client.table("user_threads").upsert(thread_dict).execute()
-
-    async def _get_or_create_agent(
-        self, user_id: str, api_id: str, access_token: str
+    def _get_or_create_session_agent(
+        self, session_id: str, api_id: str
     ) -> OpenAIAssistantAgent:
-        """Get existing agent or create new one for user/api combination"""
-        if user_id not in self._user_agents:
-            self._user_agents[user_id] = {}
+        """Get existing agent or create new one for session/api combination"""
+        if session_id not in self._session_agents:
+            self._session_agents[session_id] = {}
 
-        if api_id not in self._user_agents[user_id]:
-            # Try to load existing thread from database
-            thread_data = await self._load_user_thread(user_id, api_id, access_token)
+        if api_id not in self._session_agents[session_id]:
+            # Create new agent using the base agent's assistant ID
             base_agent = self._base_agents[api_id]
+            new_agent = self._create_agent(
+                api_id,
+                assistant_id=base_agent.assistant.id,
+            )
+            self._session_agents[session_id][api_id] = new_agent
 
-            if thread_data:
-                new_agent = self._create_agent(
-                    api_id,
-                    assistant_id=thread_data.assistant_id,
-                    thread_id=thread_data.thread_id,
-                )
-            else:
-                new_agent = self._create_agent(
-                    api_id,
-                    assistant_id=base_agent.assistant.id,
-                )
-                print("Creating new user thread")
-                thread_data = UserThread(
-                    user_id=user_id,
-                    api_id=api_id,
-                    assistant_id=base_agent.assistant.id,
-                    thread_id=new_agent.thread_id,
-                )
-                await self._save_user_thread(thread_data, access_token)
+        return self._session_agents[session_id][api_id]
 
-            self._user_agents[user_id][api_id] = new_agent
+    def cleanup_session(self, session_id: str) -> None:
+        """Clean up agents for a specific session"""
+        if session_id in self._session_agents:
+            del self._session_agents[session_id]
 
-        return self._user_agents[user_id][api_id]
-
-    async def process_message(self, api_id: str, message: str, user_data) -> str:
+    async def process_message(
+        self, api_id: str, message: str, session_id: str, user_id: str
+    ) -> str:
         """Process a message using the specified agent"""
         if api_id not in self._base_agents:
             raise ValueError(f"No agent found for API {api_id}")
 
-        user_id = user_data["id"]
-        access_token = user_data["access_token"]  # Make sure this exists
-        agent = await self._get_or_create_agent(user_id, api_id, access_token)
+        agent = self._get_or_create_session_agent(session_id, api_id)
 
         with instrumentor.observe(
             user_id=user_id,
             session_id=agent.thread_id,
         ) as trace:
             try:
-                # Use achat directly and handle the response
                 response = await agent.achat(message)
                 if isinstance(response, dict) and "content" in response:
                     return str(response["content"])
