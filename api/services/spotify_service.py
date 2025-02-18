@@ -45,81 +45,31 @@ class SpotifyService:
 
     @staticmethod
     def _filter_response(response: Dict[Any, Any], fields: str) -> Dict[Any, Any]:
-        """
-        Filter a dictionary response based on specified fields using dot notation for nested fields.
+        def extract_fields(data, field_list):
+            if isinstance(data, dict):
+                filtered_data = {}
+                field_map = {}
 
-        This method handles three types of field specifications:
-        1. Top-level fields (e.g., 'total')
-        2. Direct fields in items array (e.g., 'items.name')
-        3. Nested fields in items array with transformation (e.g., 'items.artists.name')
+                for field in field_list:
+                    keys = field.split(".", 1)
+                    if len(keys) == 2:
+                        if keys[0] not in field_map:
+                            field_map[keys[0]] = []
+                        field_map[keys[0]].append(keys[1])
+                    else:
+                        filtered_data[field] = data.get(field)
 
-        Only fields explicitly mentioned in the fields parameter are included in the output.
+                for key, sub_fields in field_map.items():
+                    if key in data:
+                        filtered_data[key] = extract_fields(data[key], sub_fields)
 
-        Args:
-            response (Dict[Any, Any]): The response dictionary to filter
-            fields (str): Comma-separated string of fields to keep. Dot notation used for nested fields.
-
-        Returns:
-            Dict[Any, Any]: A new dictionary containing only the specified fields
-        """
-        if not fields:
-            return response
+                return filtered_data
+            elif isinstance(data, list):
+                return [extract_fields(item, field_list) for item in data]
+            return data
 
         field_list = fields.split(",")
-        result = {}
-
-        # Extract top-level fields
-        top_level_fields = [field for field in field_list if "." not in field]
-        for field in top_level_fields:
-            if field in response:
-                result[field] = response[field]
-
-        # Process items array if fields contain 'items.'
-        if any(field.startswith("items.") for field in field_list):
-            result["items"] = []
-
-            # Parse fields for direct and nested item fields
-            direct_fields = []
-            nested_fields = {}
-
-            for field in field_list:
-                parts = field.split(".")
-                if len(parts) >= 2 and parts[0] == "items":
-                    if len(parts) == 2:
-                        direct_fields.append(parts[1])
-                    elif len(parts) == 3:
-                        nested_fields.setdefault(parts[1], set()).add(parts[2])
-
-            # Process each item
-            for item in response.get("items", []):
-                filtered_item = {}
-
-                # Copy direct fields
-                for field in direct_fields:
-                    if field in item:
-                        filtered_item[field] = item[field]
-
-                # Process nested fields with transformation
-                for parent, subfields in nested_fields.items():
-                    if parent in item:
-                        if isinstance(item[parent], list) and item[parent]:
-                            # Transform list to dict with specific fields
-                            filtered_item[parent] = {
-                                subfield: item[parent][0][subfield]
-                                for subfield in subfields
-                                if subfield in item[parent][0]
-                            }
-                        elif isinstance(item[parent], dict):
-                            # Filter dict with specific fields
-                            filtered_item[parent] = {
-                                subfield: item[parent][subfield]
-                                for subfield in subfields
-                                if subfield in item[parent]
-                            }
-
-                result["items"].append(filtered_item)
-
-        return result
+        return extract_fields(response, field_list)
 
     @staticmethod
     @with_yaml_doc("search_spotify")

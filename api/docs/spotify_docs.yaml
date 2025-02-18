@@ -26,56 +26,92 @@ search_spotify:
       For example, if you want to limit the number of albums, artists, 
       and tracks to 5 each, set limit=5. Default: 1. Minimum: 1. Maximum: 50.
     fields: >
-      Comma-separated list of fields to include in the response. Fields parameter is required.
-      Available fields by content type:
-      
+      Available fields for each result type:
+
       Tracks:
-      - Basic: id, name, type, uri
-      - Artists info: artists.id, artists.name
-      - Album info: album.id, album.name, album.release_date, album.total_tracks
-      - Track details: duration_ms, explicit, popularity, preview_url
-      - External: external_urls.spotify
-      Example: "id,name,artists.name,album.name,duration_ms"
-      
+      - tracks.href, tracks.limit, tracks.next, tracks.offset, tracks.previous, tracks.total
+      - tracks.items.album.album_type, tracks.items.album.total_tracks, tracks.items.album.available_markets
+      - tracks.items.album.external_urls.spotify, tracks.items.album.href, tracks.items.album.id
+      - tracks.items.album.images.url, tracks.items.album.images.height, tracks.items.album.images.width
+      - tracks.items.album.name, tracks.items.album.release_date, tracks.items.album.release_date_precision
+      - tracks.items.album.restrictions.reason, tracks.items.album.type, tracks.items.album.uri
+      - tracks.items.album.artists.external_urls.spotify, tracks.items.album.artists.href
+      - tracks.items.album.artists.id, tracks.items.album.artists.name, tracks.items.album.artists.type
+      - tracks.items.album.artists.uri
+      - tracks.items.artists.external_urls.spotify, tracks.items.artists.href, tracks.items.artists.id
+      - tracks.items.artists.name, tracks.items.artists.type, tracks.items.artists.uri
+      - tracks.items.available_markets, tracks.items.disc_number, tracks.items.duration_ms
+      - tracks.items.explicit, tracks.items.external_ids.isrc, tracks.items.external_ids.ean
+      - tracks.items.external_ids.upc, tracks.items.external_urls.spotify, tracks.items.href
+      - tracks.items.id, tracks.items.is_playable, tracks.items.linked_from, tracks.items.restrictions.reason
+      - tracks.items.name, tracks.items.popularity, tracks.items.preview_url, tracks.items.track_number
+      - tracks.items.type, tracks.items.uri, tracks.items.is_local
+
       Artists:
-      - Basic: id, name, type, uri
-      - Details: genres, popularity
-      - Images: images.url
-      - Stats: followers.total
-      - External: external_urls.spotify
-      Example: "id,name,genres,popularity,images.url"
-      
+      - artists.href, artists.limit, artists.next, artists.offset, artists.previous, artists.total
+      - artists.items.external_urls.spotify, artists.items.followers.href, artists.items.followers.total
+      - artists.items.genres, artists.items.href, artists.items.id
+      - artists.items.images.url, artists.items.images.height, artists.items.images.width
+      - artists.items.name, artists.items.popularity, artists.items.type, artists.items.uri
+
       Albums:
-      - Basic: id, name, type, uri, album_type
-      - Details: total_tracks, release_date
-      - Artists: artists.id, artists.name
-      - Images: images.url
-      - External: external_urls.spotify
-      Example: "id,name,artists.name,release_date,total_tracks"
-      
+      - albums.href, albums.limit, albums.next, albums.offset, albums.previous, albums.total
+      - albums.items.album_type, albums.items.total_tracks, albums.items.available_markets
+      - albums.items.external_urls.spotify, albums.items.href, albums.items.id
+      - albums.items.images.url, albums.items.images.height, albums.items.images.width
+      - albums.items.name, albums.items.release_date, albums.items.release_date_precision
+      - albums.items.restrictions.reason, albums.items.type, albums.items.uri
+      - albums.items.artists.external_urls.spotify, albums.items.artists.href
+      - albums.items.artists.id, albums.items.artists.name, albums.items.artists.type
+      - albums.items.artists.uri
+
       Playlists:
-      - Basic: id, name, type, uri
-      - Details: description, public
-      - Owner: owner.id, owner.display_name
-      - Images: images.url
-      - Stats: tracks.total
-      - External: external_urls.spotify
-      Example: "id,name,owner.display_name,tracks.total"
-      
-      Shows & Episodes:
-      - Basic: id, name, type, uri
-      - Details: description, explicit, languages, publisher
-      - Images: images.url
-      - External: external_urls.spotify
-      Example: "id,name,description,publisher"
-      
+      - playlists.href, playlists.limit, playlists.next, playlists.offset, playlists.previous, playlists.total
+      - playlists.items.collaborative, playlists.items.description
+      - playlists.items.external_urls.spotify, playlists.items.href, playlists.items.id
+      - playlists.items.images.url, playlists.items.images.height, playlists.items.images.width
+      - playlists.items.name
+      - playlists.items.owner.external_urls.spotify, playlists.items.owner.followers.href
+      - playlists.items.owner.followers.total, playlists.items.owner.href, playlists.items.owner.id
+      - playlists.items.owner.type, playlists.items.owner.uri, playlists.items.owner.display_name
+      - playlists.items.public, playlists.items.snapshot_id
+      - playlists.items.tracks.href, playlists.items.tracks.total
+      - playlists.items.type, playlists.items.uri
+
+      Shows:
+      - shows.href, shows.limit, shows.next, shows.offset, shows.previous, shows.total
+      - shows.items.available_markets
+      - shows.items.copyrights.text, shows.items.copyrights.type
+      - shows.items.description, shows.items.html_description, shows.items.explicit
+      - shows.items.external_urls.spotify, shows.items.href, shows.items.id
+      - shows.items.images.url, shows.items.images.height, shows.items.images.width
+      - shows.items.is_externally_hosted, shows.items.languages, shows.items.media_type
+      - shows.items.name, shows.items.publisher, shows.items.type, shows.items.uri
+      - shows.items.total_episodes
+
+      Episodes:
+      - episodes.href, episodes.limit, episodes.next, episodes.offset, episodes.previous, episodes.total
+      - episodes.items.audio_preview_url, episodes.items.description, episodes.items.html_description
+      - episodes.items.duration_ms, episodes.items.explicit
+      - episodes.items.external_urls.spotify, episodes.items.href, episodes.items.id
+      - episodes.items.images.url, episodes.items.images.height, episodes.items.images.width
+      - episodes.items.is_externally_hosted, episodes.items.is_playable
+      - episodes.items.language, episodes.items.languages
+      - episodes.items.name, episodes.items.release_date, episodes.items.release_date_precision
+      - episodes.items.resume_point.fully_played, episodes.items.resume_point.resume_position_ms
+      - episodes.items.type, episodes.items.uri, episodes.items.restrictions.reason
+
       Audiobooks:
-      - Basic: id, name, type, uri
-      - Details: description, edition, explicit, languages
-      - Credits: authors.name, narrators.name, publisher
-      - Stats: total_chapters
-      - External: external_urls.spotify
-      Example: "id,name,authors.name,total_chapters"
+      - audiobooks.href, audiobooks.limit, audiobooks.next, audiobooks.offset, audiobooks.previous, audiobooks.total
+      - audiobooks.items.authors.name
+      - audiobooks.items.available_markets
+      - audiobooks.items.copyrights.text, audiobooks.items.copyrights.type
+      - audiobooks.items.description, audiobooks.items.html_description, audiobooks.items.edition
+      - audiobooks.items.explicit, audiobooks.items.external_urls.spotify, audiobooks.items.href, audiobooks.items.id
+      - audiobooks.items.images.url, audiobooks.items.images.height, audiobooks.items.images.width
+      - audiobooks.items.languages, audiobooks.items.media_type, audiobooks.items.name
+      - audiobooks.items.narrators.name, audiobooks.items.publisher
+      - audiobooks.items.type, audiobooks.items.uri, audiobooks.items.total_chapters
 
 get_track:
   method_doc: >
@@ -90,31 +126,36 @@ get_track:
     fields: >
       Available fields by category:
       
-      Basic Track Info:
-      - id, name, type, uri
-      - duration_ms, track_number, disc_number
-      - explicit, is_playable, is_local
-      - popularity, preview_url
+      Album:
+      - album.album_type, album.total_tracks, album.available_markets
+      - album.external_urls.spotify, album.href, album.id
+      - album.images.url, album.images.height, album.images.width
+      - album.name, album.release_date, album.release_date_precision
+      - album.restrictions.reason, album.type, album.uri
+      - album.artists.external_urls.spotify, album.artists.href
+      - album.artists.id, album.artists.name, album.artists.type
+      - album.artists.uri
       
       Artists:
-      - artists.id, artists.name, artists.uri
-      - artists.external_urls.spotify
+      - artists.external_urls.spotify, artists.href
+      - artists.id, artists.name, artists.type, artists.uri
       
-      Album:
-      - album.id, album.name, album.type
-      - album.release_date
-      - album.total_tracks
-      - album.images.url
-      - album.artists.name
+      Track Info:
+      - available_markets, disc_number, duration_ms
+      - explicit, is_playable, is_local
+      - name, popularity, preview_url, track_number
+      - type, uri, href, id
       
-      External IDs & URLs:
+      Restrictions & External:
+      - restrictions.reason
       - external_ids.isrc, external_ids.ean, external_ids.upc
       - external_urls.spotify
+      - linked_from
       
       Example combinations:
       - Basic: "id,name,duration_ms,popularity"
-      - With artists: "id,name,artists.name,duration_ms"
-      - Full details: "id,name,artists.name,album.name,album.release_date,duration_ms,popularity"
+      - With artists: "id,name,artists.name,album.name"
+      - Full details: "id,name,artists.name,album.name,album.release_date,duration_ms,popularity,preview_url"
 
 get_artists_top_tracks:
   method_doc: >
@@ -134,13 +175,37 @@ get_artists_top_tracks:
       Available fields by category:
       
       Album:
-      - album_type, total_tracks, available_markets, external_urls.spotify, href, id, images.url, images.height, images.width, name, release_date, release_date_precision, restrictions.reason, type, uri, artists.external_urls.spotify, artists.href, artists.id, artists.name, artists.type, artists.uri
+      - tracks.album.album_type, tracks.album.total_tracks
+      - tracks.album.available_markets
+      - tracks.album.external_urls.spotify, tracks.album.href
+      - tracks.album.id, tracks.album.name, tracks.album.type, tracks.album.uri
+      - tracks.album.release_date, tracks.album.release_date_precision
+      - tracks.album.restrictions.reason
+      - tracks.album.images.url, tracks.album.images.height, tracks.album.images.width
+      - tracks.album.artists.external_urls.spotify, tracks.album.artists.href
+      - tracks.album.artists.id, tracks.album.artists.name
+      - tracks.album.artists.type, tracks.album.artists.uri
       
       Artists:
-      - external_urls.spotify, href, id, name, type, uri
+      - tracks.artists.external_urls.spotify, tracks.artists.href
+      - tracks.artists.id, tracks.artists.name, tracks.artists.type, tracks.artists.uri
       
-      Tracks:
-      - available_markets, disc_number, duration_ms, explicit, external_ids.isrc, external_ids.ean, external_ids.upc, external_urls.spotify, href, id, is_playable, linked_from, restrictions.reason, name, popularity, preview_url, track_number, type, uri, is_local
+      Track Info:
+      - tracks.available_markets, tracks.disc_number, tracks.duration_ms
+      - tracks.explicit, tracks.is_playable, tracks.is_local
+      - tracks.name, tracks.popularity, tracks.preview_url, tracks.track_number
+      - tracks.type, tracks.uri, tracks.href, tracks.id
+      
+      Restrictions & External:
+      - tracks.restrictions.reason
+      - tracks.external_ids.isrc, tracks.external_ids.ean, tracks.external_ids.upc
+      - tracks.external_urls.spotify
+      - tracks.linked_from
+      
+      Example combinations:
+      - Basic: "tracks.id,tracks.name,tracks.duration_ms,tracks.popularity"
+      - With artists: "tracks.id,tracks.name,tracks.artists.name,tracks.album.name"
+      - Full details: "tracks.id,tracks.name,tracks.artists.name,tracks.album.name,tracks.album.release_date,tracks.duration_ms,tracks.popularity,tracks.preview_url"
 
 get_artist:
   method_doc: >
@@ -157,24 +222,22 @@ get_artist:
       
       Basic Info:
       - id, name, type, uri
+      - external_urls.spotify
+      - href
       - popularity
       
       Details:
-      - genres (array of genre names)
-      - followers.total
+      - followers.href, followers.total
+      - genres
       
       Images:
       - images.url
       - images.height
       - images.width
       
-      External:
-      - external_urls.spotify
-      - href
-      
       Example combinations:
-      - Basic: "id,name,popularity"
-      - With genres: "id,name,genres,popularity"
+      - Basic: "id,name,type,uri"
+      - With details: "id,name,genres,popularity,followers.total"
       - Full profile: "id,name,genres,followers.total,popularity,images.url,external_urls.spotify"
 
 get_artists_albums:
@@ -197,34 +260,40 @@ get_artists_albums:
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
     fields: >
-      Available fields:
-      - items.album_type
+      Available fields by category:
+      
+      Pagination:
+      - href, limit, next, offset, previous, total
+      
+      Album Info:
+      - items.album_type, items.album_group
       - items.total_tracks
       - items.available_markets
-      - items.external_urls.spotify
-      - items.href
-      - items.id
-      - items.images.url
-      - items.images.height
-      - items.images.width
-      - items.name
+      - items.name, items.type, items.uri
+      - items.id, items.href
+      
+      Release Info:
       - items.release_date
       - items.release_date_precision
       - items.restrictions.reason
-      - items.type
-      - items.uri
+      
+      Artists:
       - items.artists.external_urls.spotify
-      - items.artists.href
-      - items.artists.id
-      - items.artists.name
-      - items.artists.type
-      - items.artists.uri
-      - items.album_group
+      - items.artists.href, items.artists.id
+      - items.artists.name, items.artists.type, items.artists.uri
+      
+      Images:
+      - items.images.url
+      - items.images.height
+      - items.images.width
+      
+      External:
+      - items.external_urls.spotify
       
       Example combinations:
-      - Basic: "items.id,items.name,items.album_type,items.release_date"
+      - Basic: "href,items.id,items.name,items.album_type"
       - With artists: "items.id,items.name,items.artists.name,items.album_type,items.total_tracks"
-      - Full details: "items.id,items.name,items.album_type,items.release_date,items.total_tracks,items.artists.name,items.images.url,items.external_urls.spotify"
+      - Full details: "href,items(id,name,album_type,release_date,total_tracks,artists.name,images.url,external_urls.spotify),total"
 
 get_album:
   method_doc: >
@@ -242,20 +311,35 @@ get_album:
       Basic Album Info:
       - id, name, type, uri
       - album_type, total_tracks
+      - available_markets
       - release_date, release_date_precision
       - label, popularity
+      - href
+      - restrictions.reason
       
       Artists:
-      - artists.id, artists.name
-      - artists.uri, artists.type
       - artists.external_urls.spotify
+      - artists.href, artists.id
+      - artists.name, artists.type, artists.uri
       
       Tracks:
+      - tracks.href, tracks.limit
+      - tracks.next, tracks.offset, tracks.previous
       - tracks.total
-      - tracks.items.id, tracks.items.name
-      - tracks.items.duration_ms, tracks.items.track_number
-      - tracks.items.artists.name
-      - tracks.items.preview_url
+      - tracks.items.artists.external_urls.spotify
+      - tracks.items.artists.href, tracks.items.artists.id
+      - tracks.items.artists.name, tracks.items.artists.type
+      - tracks.items.artists.uri
+      - tracks.items.available_markets
+      - tracks.items.disc_number, tracks.items.duration_ms
+      - tracks.items.explicit, tracks.items.is_playable, tracks.items.is_local
+      - tracks.items.name, tracks.items.preview_url
+      - tracks.items.track_number, tracks.items.type, tracks.items.uri
+      - tracks.items.external_urls.spotify, tracks.items.href, tracks.items.id
+      - tracks.items.linked_from.external_urls.spotify
+      - tracks.items.linked_from.href, tracks.items.linked_from.id
+      - tracks.items.linked_from.type, tracks.items.linked_from.uri
+      - tracks.items.restrictions.reason
       
       Images:
       - images.url
@@ -269,9 +353,9 @@ get_album:
       - external_urls.spotify
       
       Example combinations:
-      - Basic: "id,name,artists.name,release_date"
-      - With tracks: "id,name,artists.name,tracks.items.name"
-      - Full details: "id,name,artists.name,release_date,total_tracks,tracks.items.name,popularity,images.url"
+      - Basic: "id,name,album_type,total_tracks"
+      - With artists: "id,name,artists.name,tracks.total"
+      - Full details: "id,name,artists.name,release_date,total_tracks,tracks.items(name,duration_ms,track_number),images.url"
 
 get_album_tracks:
   method_doc: >
@@ -289,30 +373,35 @@ get_album_tracks:
       Example: limit=10
     fields: >
       Available fields by category:
-
-      Track Basic Info:
-      - id, name, type, uri
-      - duration_ms, disc_number, track_number
-      - explicit, is_playable, is_local
-      - preview_url
-      
-      Artists:
-      - artists.id, artists.name
-      - artists.type, artists.uri
-      - artists.external_urls.spotify
-      
-      External & Links:
-      - external_urls.spotify
-      - href
       
       Pagination:
-      - limit, offset, total
-      - next, previous
+      - href, limit, next, offset, previous, total
+      
+      Track Info:
+      - items.name, items.id, items.type, items.uri
+      - items.disc_number, items.track_number
+      - items.duration_ms, items.explicit
+      - items.is_playable, items.is_local
+      - items.preview_url
+      - items.available_markets
+      
+      Artists:
+      - items.artists.external_urls.spotify
+      - items.artists.href, items.artists.id
+      - items.artists.name, items.artists.type, items.artists.uri
+      
+      External & Links:
+      - items.external_urls.spotify
+      - items.href
+      - items.linked_from.external_urls.spotify
+      - items.linked_from.href, items.linked_from.id
+      - items.linked_from.type, items.linked_from.uri
+      - items.restrictions.reason
       
       Example combinations:
-      - Basic: "id,name,track_number"
-      - With artists: "id,name,artists.name,duration_ms"
-      - Full details: "id,name,artists.name,duration_ms,track_number,preview_url,external_urls.spotify"
+      - Basic: "href,items(id,name,track_number)"
+      - With artists: "items(id,name,artists.name,duration_ms)"
+      - Full details: "href,total,items(id,name,artists.name,duration_ms,track_number,preview_url,external_urls.spotify)"
 
 get_new_releases:
   method_doc: >
@@ -327,19 +416,26 @@ get_new_releases:
     fields: >
       Available fields by category:
       
-      Basic Album Info:
-      - albums.items.id, albums.items.name
-      - albums.items.type, albums.items.uri
+      Pagination:
+      - albums.href, albums.limit, albums.next
+      - albums.offset, albums.previous, albums.total
+      
+      Album Info:
       - albums.items.album_type
       - albums.items.total_tracks
+      - albums.items.available_markets
+      - albums.items.name, albums.items.type, albums.items.uri
+      - albums.items.id, albums.items.href
+      - albums.items.restrictions.reason
       
       Release Info:
       - albums.items.release_date
       - albums.items.release_date_precision
       
       Artists:
-      - albums.items.artists.id
-      - albums.items.artists.name
+      - albums.items.artists.external_urls.spotify
+      - albums.items.artists.href, albums.items.artists.id
+      - albums.items.artists.name, albums.items.artists.type
       - albums.items.artists.uri
       
       Images:
@@ -347,18 +443,13 @@ get_new_releases:
       - albums.items.images.height
       - albums.items.images.width
       
-      External & Links:
+      External:
       - albums.items.external_urls.spotify
-      - albums.items.href
-      
-      Pagination:
-      - albums.limit, albums.offset, albums.total
-      - albums.next, albums.previous
       
       Example combinations:
-      - Basic: "albums.items.id,albums.items.name,albums.items.artists.name"
-      - With release: "albums.items.id,albums.items.name,albums.items.artists.name,albums.items.release_date"
-      - Full details: "albums.items.id,albums.items.name,albums.items.artists.name,albums.items.release_date,albums.items.total_tracks,albums.items.images.url"
+      - Basic: "albums.href,albums.items(id,name,artists.name)"
+      - With release: "albums(href,items(id,name,artists.name,release_date))"
+      - Full details: "albums(href,items(id,name,artists(name,uri),release_date,total_tracks,images.url,available_markets),total)"
 
 get_playlist:
   method_doc: >
@@ -374,48 +465,47 @@ get_playlist:
       Available fields by category:
       
       Basic Info:
-      - id, name, type, uri
-      - description, collaborative, public
-      - snapshot_id
+      - collaborative, description, href, id, name, snapshot_id, type, uri
+      - public, external_urls.spotify
       
       Owner:
-      - owner.id, owner.display_name
-      - owner.uri, owner.type
-      - owner.external_urls.spotify
+      - owner.display_name, owner.external_urls.spotify, owner.href
+      - owner.id, owner.type, owner.uri
+      - owner.followers.href, owner.followers.total
       
       Images:
-      - images.url
-      - images.height
-      - images.width
+      - images.url, images.height, images.width
       
       Followers:
-      - followers.total
+      - followers.href, followers.total
       
       Tracks:
-      - tracks.total
-      - tracks.items.added_at
-      - tracks.items.added_by.id
-      - tracks.items.added_by.display_name
-      - tracks.items.track.id
-      - tracks.items.track.name
-      - tracks.items.track.duration_ms
-      - tracks.items.track.popularity
-      - tracks.items.track.artists.name
-      - tracks.items.track.album.name
-      - tracks.items.track.album.release_date
-      
-      External:
-      - external_urls.spotify
-      - href
-      
-      Pagination:
-      - tracks.limit, tracks.offset
-      - tracks.next, tracks.previous
+      - tracks.href, tracks.limit, tracks.next, tracks.offset, tracks.previous, tracks.total
+      - tracks.items.added_at, tracks.items.is_local
+      - tracks.items.added_by.external_urls.spotify, tracks.items.added_by.href
+      - tracks.items.added_by.id, tracks.items.added_by.type, tracks.items.added_by.uri
+      - tracks.items.track.album.album_type, tracks.items.track.album.total_tracks
+      - tracks.items.track.album.available_markets, tracks.items.track.album.external_urls.spotify
+      - tracks.items.track.album.href, tracks.items.track.album.id, tracks.items.track.album.name
+      - tracks.items.track.album.release_date, tracks.items.track.album.release_date_precision
+      - tracks.items.track.album.restrictions.reason, tracks.items.track.album.type
+      - tracks.items.track.album.uri, tracks.items.track.album.artists
+      - tracks.items.track.album.images.url, tracks.items.track.album.images.height, tracks.items.track.album.images.width
+      - tracks.items.track.artists.external_urls.spotify, tracks.items.track.artists.href
+      - tracks.items.track.artists.id, tracks.items.track.artists.name, tracks.items.track.artists.type
+      - tracks.items.track.artists.uri
+      - tracks.items.track.available_markets, tracks.items.track.disc_number
+      - tracks.items.track.duration_ms, tracks.items.track.explicit, tracks.items.track.external_ids
+      - tracks.items.track.external_urls.spotify, tracks.items.track.href, tracks.items.track.id
+      - tracks.items.track.is_playable, tracks.items.track.linked_from, tracks.items.track.restrictions
+      - tracks.items.track.name, tracks.items.track.popularity, tracks.items.track.preview_url
+      - tracks.items.track.track_number, tracks.items.track.type, tracks.items.track.uri
+      - tracks.items.track.is_local
       
       Example combinations:
       - Basic: "id,name,owner.display_name,tracks.total"
-      - With tracks: "id,name,tracks.items(track(name,artists.name))"
-      - Full details: "id,name,description,owner.display_name,tracks.total,tracks.items(added_at,track(name,artists.name,album.name))"
+      - With tracks: "id,name,tracks.items(added_at,track(name,artists.name,album.name))"
+      - Full details: "collaborative,description,id,name,owner(display_name,id),followers.total,tracks.items(added_at,track(name,album(name,release_date),artists(name),duration_ms))"
     additional_types: >
       A comma-separated list of item types supported by the client in addition to the default track type.
       Valid types: "track", "episode".

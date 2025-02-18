@@ -45,6 +45,68 @@ MOCK_ALBUMS_RESPONSE = {
     ],
 }
 
+MOCK_SEARCH_RESPONSE = {
+    "tracks": {
+        "href": "https://api.spotify.com/v1/me/shows?offset=0&limit=20",
+        "items": [
+            {
+                "album": {
+                    "album_type": "compilation",
+                    "total_tracks": 9,
+                    "name": "Album Name",
+                    "release_date": "1981-12",
+                    "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                },
+                "artists": [
+                    {
+                        "id": "artist_id",
+                        "name": "Artist Name",
+                        "type": "artist",
+                    }
+                ],
+                "duration_ms": 180000,
+                "id": "track_id",
+                "name": "Track Name",
+                "popularity": 75,
+                "preview_url": "https://preview.url",
+            }
+        ],
+        "limit": 20,
+        "total": 4,
+    },
+    "artists": {
+        "items": [
+            {
+                "genres": ["Prog rock", "Grunge"],
+                "id": "artist_id",
+                "images": [
+                    {
+                        "url": "https://i.scdn.co/image/abc123",
+                    }
+                ],
+                "name": "Artist Name",
+                "popularity": 80,
+            }
+        ]
+    },
+    "albums": {
+        "items": [
+            {
+                "album_type": "album",
+                "id": "album_id",
+                "name": "Album Name",
+                "release_date": "1981-12",
+                "total_tracks": 12,
+                "artists": [
+                    {
+                        "name": "Artist Name",
+                    }
+                ],
+            }
+        ]
+    },
+}
+
 
 class TestSpotifyService:
     @pytest.fixture(autouse=True)
@@ -85,10 +147,12 @@ class TestSpotifyService:
             "items": [
                 {
                     "name": "string",
-                    "artists": {"name": "string"},
-                    "images": {
-                        "url": "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228"
-                    },
+                    "artists": [{"name": "string"}],
+                    "images": [
+                        {
+                            "url": "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228"
+                        }
+                    ],
                 }
             ],
             "total": 4,
@@ -112,13 +176,123 @@ class TestSpotifyService:
                     "album_type": "compilation",
                     "release_date": "1981-12",
                     "total_tracks": 9,
-                    "artists": {"name": "string"},
-                    "images": {
-                        "url": "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228"
-                    },
+                    "artists": [{"name": "string"}],
+                    "images": [
+                        {
+                            "url": "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228"
+                        }
+                    ],
                     "external_urls": {"spotify": "string"},
                 }
             ],
+        }
+        assert result == expected
+
+
+class TestSpotifySearch:
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
+        """Setup the mock service before each test"""
+        self.patcher = patch(
+            "api.services.spotify_service.SpotifyService._make_request"
+        )
+        self.mock_request = self.patcher.start()
+        self.mock_request.return_value = MOCK_SEARCH_RESPONSE
+        yield
+        self.patcher.stop()
+
+    def test_search_tracks_basic(self):
+        """Test searching tracks with basic fields"""
+        fields = "tracks.items.id,tracks.items.name,tracks.items.artists.name,tracks.items.duration_ms"
+        result = SpotifyService.search_spotify(
+            q="test query", search_type="track", fields=fields
+        )
+
+        expected = {
+            "tracks": {
+                "items": [
+                    {
+                        "id": "track_id",
+                        "name": "Track Name",
+                        "artists": [{"name": "Artist Name"}],
+                        "duration_ms": 180000,
+                    }
+                ]
+            }
+        }
+        assert result == expected
+
+    def test_search_artists_basic(self):
+        """Test searching artists with basic fields"""
+        fields = "artists.items.id,artists.items.name,artists.items.genres,artists.items.popularity"
+        result = SpotifyService.search_spotify(
+            q="test query", search_type="artist", fields=fields
+        )
+
+        expected = {
+            "artists": {
+                "items": [
+                    {
+                        "id": "artist_id",
+                        "name": "Artist Name",
+                        "genres": ["Prog rock", "Grunge"],
+                        "popularity": 80,
+                    }
+                ]
+            }
+        }
+        assert result == expected
+
+    def test_search_albums_with_artists(self):
+        """Test searching albums with artist information"""
+        fields = "albums.items.id,albums.items.name,albums.items.artists.name,albums.items.release_date,albums.items.total_tracks"
+        result = SpotifyService.search_spotify(
+            q="test query", search_type="album", fields=fields
+        )
+
+        expected = {
+            "albums": {
+                "items": [
+                    {
+                        "id": "album_id",
+                        "name": "Album Name",
+                        "artists": [{"name": "Artist Name"}],
+                        "release_date": "1981-12",
+                        "total_tracks": 12,
+                    }
+                ]
+            }
+        }
+        assert result == expected
+
+    def test_search_tracks_full_details(self):
+        """Test searching tracks with full details"""
+        fields = (
+            "tracks.items.id,tracks.items.name,tracks.items.artists.name,"
+            "tracks.items.album.name,tracks.items.album.release_date,"
+            "tracks.items.duration_ms,tracks.items.popularity,tracks.items.preview_url"
+        )
+        result = SpotifyService.search_spotify(
+            q="test query", search_type="track", fields=fields
+        )
+
+        expected = {
+            "tracks": {
+                "items": [
+                    {
+                        "id": "track_id",
+                        "name": "Track Name",
+                        "artists": [{"name": "Artist Name"}],
+                        "album": {
+                            "name": "Album Name",
+                            "release_date": "1981-12",
+                        },
+                        "duration_ms": 180000,
+                        "popularity": 75,
+                        "preview_url": "https://preview.url",
+                    }
+                ]
+            }
         }
         assert result == expected
 
