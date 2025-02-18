@@ -6,7 +6,7 @@ from api.config.settings import settings
 from api.utils.auth import get_spotify_token
 from typing_extensions import Annotated
 from pydantic import Field
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 import json
 
 # Load documentation from YAML
@@ -45,47 +45,79 @@ class SpotifyService:
 
     @staticmethod
     def _filter_response(response: Dict[Any, Any], fields: str) -> Dict[Any, Any]:
-        """Filter response to include only specified fields."""
+        """
+        Filter a dictionary response based on specified fields using dot notation for nested fields.
+
+        This method handles three types of field specifications:
+        1. Top-level fields (e.g., 'total')
+        2. Direct fields in items array (e.g., 'items.name')
+        3. Nested fields in items array with transformation (e.g., 'items.artists.name')
+
+        Only fields explicitly mentioned in the fields parameter are included in the output.
+
+        Args:
+            response (Dict[Any, Any]): The response dictionary to filter
+            fields (str): Comma-separated string of fields to keep. Dot notation used for nested fields.
+
+        Returns:
+            Dict[Any, Any]: A new dictionary containing only the specified fields
+        """
         if not fields:
             return response
 
-        field_list = [f.strip() for f in fields.split(",")]
+        field_list = fields.split(",")
         result = {}
 
-        def extract_fields(
-            data: Dict[Any, Any], field_paths: list[str]
-        ) -> Dict[Any, Any]:
-            output = {}
-            for path in field_paths:
-                parts = path.split(".")
-                current = data
-                valid = True
-                for part in parts[:-1]:
-                    if part not in current:
-                        valid = False
-                        break
-                    current = current[part]
-                if valid and parts[-1] in current:
-                    nested_path = parts[0]
-                    if nested_path not in output:
-                        output[nested_path] = {}
-                    current_dict = output[nested_path]
-                    for part in parts[1:-1]:
-                        if part not in current_dict:
-                            current_dict[part] = {}
-                        current_dict = current_dict[part]
-                    current_dict[parts[-1]] = current[parts[-1]]
-            return output
+        # Extract top-level fields
+        top_level_fields = [field for field in field_list if "." not in field]
+        for field in top_level_fields:
+            if field in response:
+                result[field] = response[field]
 
-        for key in response:
-            if isinstance(response[key], dict) and "items" in response[key]:
-                result[key] = {
-                    "items": [
-                        extract_fields(item, field_list)
-                        for item in response[key]["items"]
-                    ],
-                    "total": response[key].get("total", 0),
-                }
+        # Process items array if fields contain 'items.'
+        if any(field.startswith("items.") for field in field_list):
+            result["items"] = []
+
+            # Parse fields for direct and nested item fields
+            direct_fields = []
+            nested_fields = {}
+
+            for field in field_list:
+                parts = field.split(".")
+                if len(parts) >= 2 and parts[0] == "items":
+                    if len(parts) == 2:
+                        direct_fields.append(parts[1])
+                    elif len(parts) == 3:
+                        nested_fields.setdefault(parts[1], set()).add(parts[2])
+
+            # Process each item
+            for item in response.get("items", []):
+                filtered_item = {}
+
+                # Copy direct fields
+                for field in direct_fields:
+                    if field in item:
+                        filtered_item[field] = item[field]
+
+                # Process nested fields with transformation
+                for parent, subfields in nested_fields.items():
+                    if parent in item:
+                        if isinstance(item[parent], list) and item[parent]:
+                            # Transform list to dict with specific fields
+                            filtered_item[parent] = {
+                                subfield: item[parent][0][subfield]
+                                for subfield in subfields
+                                if subfield in item[parent][0]
+                            }
+                        elif isinstance(item[parent], dict):
+                            # Filter dict with specific fields
+                            filtered_item[parent] = {
+                                subfield: item[parent][subfield]
+                                for subfield in subfields
+                                if subfield in item[parent]
+                            }
+
+                result["items"].append(filtered_item)
 
         return result
 

@@ -27,8 +27,55 @@ search_spotify:
       and tracks to 5 each, set limit=5. Default: 1. Minimum: 1. Maximum: 50.
     fields: >
       Comma-separated list of fields to include in the response. Fields parameter is required.
-      See available_fields section for available options for each type.
-      Example for tracks: "id,name,artists.name,album.name"
+      Available fields by content type:
+      
+      Tracks:
+      - Basic: id, name, type, uri
+      - Artists info: artists.id, artists.name
+      - Album info: album.id, album.name, album.release_date, album.total_tracks
+      - Track details: duration_ms, explicit, popularity, preview_url
+      - External: external_urls.spotify
+      Example: "id,name,artists.name,album.name,duration_ms"
+      
+      Artists:
+      - Basic: id, name, type, uri
+      - Details: genres, popularity
+      - Images: images.url
+      - Stats: followers.total
+      - External: external_urls.spotify
+      Example: "id,name,genres,popularity,images.url"
+      
+      Albums:
+      - Basic: id, name, type, uri, album_type
+      - Details: total_tracks, release_date
+      - Artists: artists.id, artists.name
+      - Images: images.url
+      - External: external_urls.spotify
+      Example: "id,name,artists.name,release_date,total_tracks"
+      
+      Playlists:
+      - Basic: id, name, type, uri
+      - Details: description, public
+      - Owner: owner.id, owner.display_name
+      - Images: images.url
+      - Stats: tracks.total
+      - External: external_urls.spotify
+      Example: "id,name,owner.display_name,tracks.total"
+      
+      Shows & Episodes:
+      - Basic: id, name, type, uri
+      - Details: description, explicit, languages, publisher
+      - Images: images.url
+      - External: external_urls.spotify
+      Example: "id,name,description,publisher"
+      
+      Audiobooks:
+      - Basic: id, name, type, uri
+      - Details: description, edition, explicit, languages
+      - Credits: authors.name, narrators.name, publisher
+      - Stats: total_chapters
+      - External: external_urls.spotify
+      Example: "id,name,authors.name,total_chapters"
 
 get_track:
   method_doc: >
@@ -41,9 +88,33 @@ get_track:
       This parameter is required.
       Example: 11dFghVXANMlKmJXsNCbNl
     fields: >
-      Available fields: id, name, album.name, album.release_date, artists.name, duration_ms, 
-      popularity, external_urls.spotify
-      Example: "id,name,artists.name,album.name"
+      Available fields by category:
+      
+      Basic Track Info:
+      - id, name, type, uri
+      - duration_ms, track_number, disc_number
+      - explicit, is_playable, is_local
+      - popularity, preview_url
+      
+      Artists:
+      - artists.id, artists.name, artists.uri
+      - artists.external_urls.spotify
+      
+      Album:
+      - album.id, album.name, album.type
+      - album.release_date
+      - album.total_tracks
+      - album.images.url
+      - album.artists.name
+      
+      External IDs & URLs:
+      - external_ids.isrc, external_ids.ean, external_ids.upc
+      - external_urls.spotify
+      
+      Example combinations:
+      - Basic: "id,name,duration_ms,popularity"
+      - With artists: "id,name,artists.name,duration_ms"
+      - Full details: "id,name,artists.name,album.name,album.release_date,duration_ms,popularity"
 
 get_artists_top_tracks:
   method_doc: >
@@ -60,9 +131,16 @@ get_artists_top_tracks:
       Default: 10. Minimum: 1. Maximum: 50.
       Example: limit=5
     fields: >
-      Available fields: id, name, album.name, album.release_date, duration_ms, popularity,
-      external_urls.spotify
-      Example: "id,name,album.name,popularity"
+      Available fields by category:
+      
+      Album:
+      - album_type, total_tracks, available_markets, external_urls.spotify, href, id, images.url, images.height, images.width, name, release_date, release_date_precision, restrictions.reason, type, uri, artists.external_urls.spotify, artists.href, artists.id, artists.name, artists.type, artists.uri
+      
+      Artists:
+      - external_urls.spotify, href, id, name, type, uri
+      
+      Tracks:
+      - available_markets, disc_number, duration_ms, explicit, external_ids.isrc, external_ids.ean, external_ids.upc, external_urls.spotify, href, id, is_playable, linked_from, restrictions.reason, name, popularity, preview_url, track_number, type, uri, is_local
 
 get_artist:
   method_doc: >
@@ -75,9 +153,29 @@ get_artist:
       This parameter is required.
       Example: 0TnOYISbd1XYRBk9myaseg
     fields: >
-      Available fields: id, name, genres, followers.total, popularity, external_urls.spotify, 
-      images.url
-      Example: "id,name,genres,popularity"
+      Available fields by category:
+      
+      Basic Info:
+      - id, name, type, uri
+      - popularity
+      
+      Details:
+      - genres (array of genre names)
+      - followers.total
+      
+      Images:
+      - images.url
+      - images.height
+      - images.width
+      
+      External:
+      - external_urls.spotify
+      - href
+      
+      Example combinations:
+      - Basic: "id,name,popularity"
+      - With genres: "id,name,genres,popularity"
+      - Full profile: "id,name,genres,followers.total,popularity,images.url,external_urls.spotify"
 
 get_artists_albums:
   method_doc: >
@@ -99,9 +197,34 @@ get_artists_albums:
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
     fields: >
-      Available fields: id, name, album_type, release_date, total_tracks, external_urls.spotify, 
-      images.url, artists.name
-      Example: "id,name,release_date,total_tracks"
+      Available fields:
+      - items.album_type
+      - items.total_tracks
+      - items.available_markets
+      - items.external_urls.spotify
+      - items.href
+      - items.id
+      - items.images.url
+      - items.images.height
+      - items.images.width
+      - items.name
+      - items.release_date
+      - items.release_date_precision
+      - items.restrictions.reason
+      - items.type
+      - items.uri
+      - items.artists.external_urls.spotify
+      - items.artists.href
+      - items.artists.id
+      - items.artists.name
+      - items.artists.type
+      - items.artists.uri
+      - items.album_group
+      
+      Example combinations:
+      - Basic: "items.id,items.name,items.album_type,items.release_date"
+      - With artists: "items.id,items.name,items.artists.name,items.album_type,items.total_tracks"
+      - Full details: "items.id,items.name,items.album_type,items.release_date,items.total_tracks,items.artists.name,items.images.url,items.external_urls.spotify"
 
 get_album:
   method_doc: >
@@ -114,13 +237,45 @@ get_album:
       This parameter is required.
       Example: 4aawyAB9vmqN3uQ7FjRGTy
     fields: >
-      Available fields: id, name, artists.name, release_date, total_tracks, popularity, 
-      external_urls.spotify, images.url, tracks.items.name
-      Example: "id,name,artists.name,tracks.items.name"
+      Available fields by category:
+      
+      Basic Album Info:
+      - id, name, type, uri
+      - album_type, total_tracks
+      - release_date, release_date_precision
+      - label, popularity
+      
+      Artists:
+      - artists.id, artists.name
+      - artists.uri, artists.type
+      - artists.external_urls.spotify
+      
+      Tracks:
+      - tracks.total
+      - tracks.items.id, tracks.items.name
+      - tracks.items.duration_ms, tracks.items.track_number
+      - tracks.items.artists.name
+      - tracks.items.preview_url
+      
+      Images:
+      - images.url
+      - images.height
+      - images.width
+      
+      Additional Details:
+      - copyrights.text, copyrights.type
+      - genres
+      - external_ids.isrc, external_ids.ean, external_ids.upc
+      - external_urls.spotify
+      
+      Example combinations:
+      - Basic: "id,name,artists.name,release_date"
+      - With tracks: "id,name,artists.name,tracks.items.name"
+      - Full details: "id,name,artists.name,release_date,total_tracks,tracks.items.name,popularity,images.url"
 
 get_album_tracks:
   method_doc: >
-    Get Spotify catalog information about an album’s tracks. Optional parameters can be used to limit the number of tracks returned.
+    Get Spotify catalog information about an album's tracks. Optional parameters can be used to limit the number of tracks returned.
 
     The API response includes detailed metadata for each track, such as performing artists, track duration, explicit content flags, available markets, and external URLs. Pagination parameters can be used to navigate through large result sets.
   params:
@@ -133,12 +288,35 @@ get_album_tracks:
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
     fields: >
-      Available fields: id, name, artists.name, duration_ms, track_number, external_urls.spotify
-      Example: "id,name,artists.name,duration_ms"
+      Available fields by category:
+
+      Track Basic Info:
+      - id, name, type, uri
+      - duration_ms, disc_number, track_number
+      - explicit, is_playable, is_local
+      - preview_url
+      
+      Artists:
+      - artists.id, artists.name
+      - artists.type, artists.uri
+      - artists.external_urls.spotify
+      
+      External & Links:
+      - external_urls.spotify
+      - href
+      
+      Pagination:
+      - limit, offset, total
+      - next, previous
+      
+      Example combinations:
+      - Basic: "id,name,track_number"
+      - With artists: "id,name,artists.name,duration_ms"
+      - Full details: "id,name,artists.name,duration_ms,track_number,preview_url,external_urls.spotify"
 
 get_new_releases:
   method_doc: >
-    Get a list of new album releases featured in Spotify, as shown on the “Browse” tab of the Spotify player.
+    Get a list of new album releases featured in Spotify, as shown on the "Browse" tab of the Spotify player.
 
     The API response includes a paged set of albums with details such as album name, release date, cover art, and external URLs. Pagination parameters can be used to navigate through large result sets.
   params:
@@ -147,9 +325,40 @@ get_new_releases:
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
     fields: >
-      Available fields: id, name, artists.name, release_date, total_tracks, external_urls.spotify, 
-      images.url
-      Example: "id,name,artists.name,release_date"
+      Available fields by category:
+      
+      Basic Album Info:
+      - albums.items.id, albums.items.name
+      - albums.items.type, albums.items.uri
+      - albums.items.album_type
+      - albums.items.total_tracks
+      
+      Release Info:
+      - albums.items.release_date
+      - albums.items.release_date_precision
+      
+      Artists:
+      - albums.items.artists.id
+      - albums.items.artists.name
+      - albums.items.artists.uri
+      
+      Images:
+      - albums.items.images.url
+      - albums.items.images.height
+      - albums.items.images.width
+      
+      External & Links:
+      - albums.items.external_urls.spotify
+      - albums.items.href
+      
+      Pagination:
+      - albums.limit, albums.offset, albums.total
+      - albums.next, albums.previous
+      
+      Example combinations:
+      - Basic: "albums.items.id,albums.items.name,albums.items.artists.name"
+      - With release: "albums.items.id,albums.items.name,albums.items.artists.name,albums.items.release_date"
+      - Full details: "albums.items.id,albums.items.name,albums.items.artists.name,albums.items.release_date,albums.items.total_tracks,albums.items.images.url"
 
 get_playlist:
   method_doc: >
@@ -162,9 +371,51 @@ get_playlist:
       This parameter is required.
       Example: 3cEYpjA9oz9GiPac4AsH4n
     fields: >
-      A comma-separated list of fields to return. If omitted, all fields are returned.
-      Use dot notation for non-reoccurring fields and parentheses for nested objects.
-      Example: fields=items(added_by.id,track(name,href,album(name,href)))
+      Available fields by category:
+      
+      Basic Info:
+      - id, name, type, uri
+      - description, collaborative, public
+      - snapshot_id
+      
+      Owner:
+      - owner.id, owner.display_name
+      - owner.uri, owner.type
+      - owner.external_urls.spotify
+      
+      Images:
+      - images.url
+      - images.height
+      - images.width
+      
+      Followers:
+      - followers.total
+      
+      Tracks:
+      - tracks.total
+      - tracks.items.added_at
+      - tracks.items.added_by.id
+      - tracks.items.added_by.display_name
+      - tracks.items.track.id
+      - tracks.items.track.name
+      - tracks.items.track.duration_ms
+      - tracks.items.track.popularity
+      - tracks.items.track.artists.name
+      - tracks.items.track.album.name
+      - tracks.items.track.album.release_date
+      
+      External:
+      - external_urls.spotify
+      - href
+      
+      Pagination:
+      - tracks.limit, tracks.offset
+      - tracks.next, tracks.previous
+      
+      Example combinations:
+      - Basic: "id,name,owner.display_name,tracks.total"
+      - With tracks: "id,name,tracks.items(track(name,artists.name))"
+      - Full details: "id,name,description,owner.display_name,tracks.total,tracks.items(added_at,track(name,artists.name,album.name))"
     additional_types: >
       A comma-separated list of item types supported by the client in addition to the default track type.
       Valid types: "track", "episode".
