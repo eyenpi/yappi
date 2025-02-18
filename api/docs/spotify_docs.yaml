@@ -1,8 +1,9 @@
 search_spotify:
   method_doc: >
     Get Spotify catalog and Spotify ID information about albums, artists, playlists, tracks, shows,
-    episodes or audiobooks that match a keyword string. Audiobooks are only available
-    USE THIS TO GET SPOTIFY ID FOR OTHER API CALLS.
+    episodes or audiobooks that match a keyword string.
+    IMPORTANT: Use fields parameter to specify which fields you want in the response.
+    See available_fields section for options.
   params:
     q: >
       Your search query.
@@ -24,6 +25,10 @@ search_spotify:
       The maximum number of results to return in each item type. 
       For example, if you want to limit the number of albums, artists, 
       and tracks to 5 each, set limit=5. Default: 1. Minimum: 1. Maximum: 50.
+    fields: >
+      Comma-separated list of fields to include in the response. Fields parameter is required.
+      See available_fields section for available options for each type.
+      Example for tracks: "id,name,artists.name,album.name"
 
 get_track:
   method_doc: >
@@ -35,6 +40,10 @@ get_track:
       The Spotify ID for the track.
       This parameter is required.
       Example: 11dFghVXANMlKmJXsNCbNl
+    fields: >
+      Available fields: id, name, album.name, album.release_date, artists.name, duration_ms, 
+      popularity, external_urls.spotify
+      Example: "id,name,artists.name,album.name"
 
 get_artists_top_tracks:
   method_doc: >
@@ -50,7 +59,10 @@ get_artists_top_tracks:
       The maximum number of tracks to return.
       Default: 10. Minimum: 1. Maximum: 50.
       Example: limit=5
-
+    fields: >
+      Available fields: id, name, album.name, album.release_date, duration_ms, popularity,
+      external_urls.spotify
+      Example: "id,name,album.name,popularity"
 
 get_artist:
   method_doc: >
@@ -62,6 +74,10 @@ get_artist:
       The Spotify ID of the artist.
       This parameter is required.
       Example: 0TnOYISbd1XYRBk9myaseg
+    fields: >
+      Available fields: id, name, genres, followers.total, popularity, external_urls.spotify, 
+      images.url
+      Example: "id,name,genres,popularity"
 
 get_artists_albums:
   method_doc: >
@@ -82,6 +98,10 @@ get_artists_albums:
       The maximum number of items to return.
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
+    fields: >
+      Available fields: id, name, album_type, release_date, total_tracks, external_urls.spotify, 
+      images.url, artists.name
+      Example: "id,name,release_date,total_tracks"
 
 get_album:
   method_doc: >
@@ -93,6 +113,10 @@ get_album:
       The Spotify ID of the album.
       This parameter is required.
       Example: 4aawyAB9vmqN3uQ7FjRGTy
+    fields: >
+      Available fields: id, name, artists.name, release_date, total_tracks, popularity, 
+      external_urls.spotify, images.url, tracks.items.name
+      Example: "id,name,artists.name,tracks.items.name"
 
 get_album_tracks:
   method_doc: >
@@ -108,6 +132,9 @@ get_album_tracks:
       The maximum number of items to return.
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
+    fields: >
+      Available fields: id, name, artists.name, duration_ms, track_number, external_urls.spotify
+      Example: "id,name,artists.name,duration_ms"
 
 get_new_releases:
   method_doc: >
@@ -119,6 +146,10 @@ get_new_releases:
       The maximum number of items to return.
       Default: 20. Minimum: 1. Maximum: 50.
       Example: limit=10
+    fields: >
+      Available fields: id, name, artists.name, release_date, total_tracks, external_urls.spotify, 
+      images.url
+      Example: "id,name,artists.name,release_date"
 
 get_playlist:
   method_doc: >

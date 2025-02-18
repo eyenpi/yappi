@@ -1,9 +1,13 @@
 search_ticketmaster_events:
   method_doc: >
     Search for events on Ticketmaster by location, keyword, date, and other filters.
-    This API allows users to find upcoming events and get details such as venue, date,
-    and ticket availability.
+    IMPORTANT: Use fields parameter to specify which fields you want in the response.
+    See available_fields section for options.
   params:
+    fields: >
+      Comma-separated list of fields to include in the response. Fields parameter is required.
+      See available_fields.events for available options.
+      Example: "id,name,dates.start,venues.name"
     keyword: >
       Keyword to search for events, such as artist name, event title, or genre.
     countryCode: >
@@ -46,6 +50,11 @@ get_ticketmaster_event_details:
       The locale in ISO code format. Multiple values can be provided (e.g., "en-us").
     domain: >
       Filter entities based on the domain they are available on.
+    fields: >
+      Available fields: id, name, type, url, locale, images, sales, dates, classifications,
+      promoter, promoters, priceRanges, products, seatmap, accessibility, ticketLimit,
+      ageRestrictions, ticketing, _links, _embedded
+      Example: "id,name,dates,priceRanges,_embedded.venues"
 
 search_ticketmaster_venues:
   method_doc: >
@@ -65,6 +74,11 @@ search_ticketmaster_venues:
       Page number for paginated results. Default: 0.
     size: >
       Number of results per page. Default: 20, Maximum: 200.
+    fields: >
+      Available fields: id, name, type, url, locale, images, sales, dates, classifications,
+      promoter, promoters, priceRanges, products, seatmap, accessibility, ticketLimit,
+      ageRestrictions, ticketing, _links, _embedded
+      Example: "id,name,dates,priceRanges,_embedded.venues"
 
 get_ticketmaster_venue_details:
   method_doc: >
@@ -76,3 +90,8 @@ get_ticketmaster_venue_details:
       The locale in ISO code format. Multiple values can be provided (e.g., "en-us").
     domain: >
       Filter entities based on the domain they are available on.
+    fields: >
+      Available fields: id, name, type, locale, postalCode, timezone, city, state, country,
+      address, location, markets, dmas, social, boxOfficeInfo, parkingDetail, 
+      accessibleSeatingDetail, generalInfo, images
+      Example: "id,name,city,state,country,address"

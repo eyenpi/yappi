@@ -141,25 +141,22 @@ class AgentManager:
             raise ValueError(f"No agent found for API {api_id}")
 
         user_id = user_data["id"]
-        access_token = user_data["access_token"]
+        access_token = user_data["access_token"]  # Make sure this exists
         agent = await self._get_or_create_agent(user_id, api_id, access_token)
 
         with instrumentor.observe(
             user_id=user_id,
             session_id=agent.thread_id,
         ) as trace:
-            # # Add user message to thread
-            # agent.add_message(message)
-
-            # # Run the assistant and let it make multiple function calls
-            # run, messages = await agent.arun_assistant()
-
-            # # Get the final response after all function calls
-            # response = str(agent.latest_message.content)
-            response = await agent.achat(message)
-
-        # instrumentor.flush()
-        return str(response)
+            try:
+                # Use achat directly and handle the response
+                response = await agent.achat(message)
+                if isinstance(response, dict) and "content" in response:
+                    return str(response["content"])
+                return str(response)
+            except Exception as e:
+                print(f"Error processing message: {e}")
+                return "Sorry, there was an error processing your message."
 
 
 agent_manager = AgentManager()

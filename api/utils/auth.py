@@ -39,8 +39,8 @@ async def verify_supabase_token(authorization: str = Header(None)):
         # Verify the token
         user = supabase.auth.get_user(token)
 
-        # Only return user ID, not the token
-        return {"id": user.user.id}
+        # Return both user ID and token
+        return {"id": user.user.id, "access_token": token}
 
     except supabase.GoTrueError as e:
         # Handle specific Supabase auth errors

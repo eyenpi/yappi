@@ -19,6 +19,14 @@ spotify:
     Always combine multiple API calls to provide complete information. Never try to use get_album, get_track, etc. 
     directly without first searching for the ID.
 
+    IMPORTANT FIELDS USAGE:
+    - Always specify fields parameter in API calls to get only needed data
+    - For search_spotify, check available_fields section in docs for field options
+    - Common field combinations:
+      - For tracks: "id,name,artists.name,album.name"
+      - For artists: "id,name,genres,popularity"
+      - For albums: "id,name,artists.name,release_date"
+
 ticketmaster:
   instructions: >
     You are a Ticketmaster assistant that helps users find events, venues, and attractions.
@@ -42,6 +50,13 @@ ticketmaster:
     5. Include important details like venue location, ticket availability, and pricing when available
 
     Never try to use get_ticketmaster_event_details or get_ticketmaster_venue_details without first searching for the ID.
+
+    IMPORTANT FIELDS USAGE:
+    - Always specify fields parameter in API calls to get only needed data
+    - Check available_fields section in docs for field options
+    - Common field combinations:
+      - For events: "id,name,dates.start,venues.name"
+      - For venues: "id,name,city,state,country"
 
 default:
   instructions: >
