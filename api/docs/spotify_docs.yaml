@@ -399,9 +399,9 @@ get_album_tracks:
       - items.restrictions.reason
       
       Example combinations:
-      - Basic: "href,items(id,name,track_number)"
-      - With artists: "items(id,name,artists.name,duration_ms)"
-      - Full details: "href,total,items(id,name,artists.name,duration_ms,track_number,preview_url,external_urls.spotify)"
+      - Basic: "href,items.id,items.name,items.track_number"
+      - With artists: items.id,items.name,items.artists.name,items.duration_ms"
+      - Full details: "href,total,items.id,items.name,items.artists.name,items.duration_ms,items.track_number,items.preview_url,items.external_urls.spotify"
 
 get_new_releases:
   method_doc: >
